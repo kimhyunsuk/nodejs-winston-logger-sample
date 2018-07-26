@@ -1,38 +1,51 @@
 'use strict';
-
+/*
+ * use sample
+ * logger.error.info('error detail');
+ * logger.log.info('log detail');
+​ */
 const fs = require('fs');
 const path = require('path');
-const winston = require('winston');
-//develop
-var logPath = 'c:/logs';
-//publish
-//var logPath = 'c:/logs';
+const { createLogger, format, transports } = require('winston');
+const { combine, timestamp, label, printf } = format;
 
-if (!fs.existsSync(logPath)) {
-    fs.mkdirSync(logPath);
+var filepath = require('../../config/propertiesConfig.js').filepath;
+
+if (!fs.existsSync(filepath.logfilepath)) {
+    fs.mkdirSync(filepath.logfilepath);
 }
 
-const tsFormat = () => (new Date()).toLocaleTimeString();
+const myFormat = printf(info => {
+    return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
+});
 
-const error = winston.createLogger ({
+const error = createLogger ({
+    format: combine(
+        label({label:'Error'}),
+        timestamp(),
+        myFormat
+    ),
     transports: [
-        new winston.transports.File({
-            filename: path.join(logPath, 'errs.log'), 
-            timestamp: tsFormat,           
+        new transports.File({
+            filename: path.join(filepath.logfilepath, 'errs.log'), 
             level: 'info'})
     ]
 });
 
-error.add(new winston.transports.Console({
-    format: winston.format.simple()
+error.add(new transports.Console({
+    format: format.simple()
 }));
 
-const log = winston.createLogger ({
+const log = createLogger ({
+    format: combine(
+        label({label:'Log'}),
+        timestamp(),
+        myFormat
+    ),
     transports: [
-        new winston.transports.Console(),
-        new winston.transports.File({
-            filename: path.join(logPath, 'logs.log'), 
-            timestamp: tsFormat,
+        new transports.Console(),
+        new transports.File({
+            filename: path.join(filepath.logfilepath, 'logs.log'), 
             level: 'info'})
     ]
 });   
