@@ -1,0 +1,12 @@
+var propertiesConfig = {
+    common: {
+    filepath: {
+        //develop
+        logfilepath: 'c:/logs'
+        //product
+        //logfilepath: 'c:/logs'
+    }
+};
+
+module.exports = propertiesConfig;
+
